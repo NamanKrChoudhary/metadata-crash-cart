@@ -174,8 +174,7 @@ graph TD
 
 To validate the architecture, the system was subjected to **four catastrophic failure simulations**.
 
-<details open>
-<summary><strong>1. The Lapping Test (CPU Starvation)</strong></summary>
+### 1. The Lapping Test (CPU Starvation)
 
 **Fault:** Unthrottled Producer (50M+ TPS) outpaces the Observer.
 **Result:** Go Spy detects the index mismatch, calculates dropped frames, and safely latches to the newest data. The AI maps the `WARNING_LAPPED` event to `Jira-802` (Core Pinning Resolution).
@@ -197,11 +196,9 @@ sequenceDiagram
     PY-->>GO: 200 OK: [JIRA-802] Core Pinning
 ```
 
+---
 
-</details>
-
-<details>
-<summary><strong>2. The Corruption Test (Data Poisoning)</strong></summary>
+### 2. The Corruption Test (Data Poisoning)
 
 **Fault:** A simulated RAM bit-flip intentionally writes `0xBADBAD` to the buffer.
 **Result:** Go Spy detects the invalid magic number, executes a strict lockdown to preserve the memory state, and triggers `Jira-803` recommending a physical `memtest86`.
@@ -228,10 +225,9 @@ sequenceDiagram
   <sub><em>Live capture — Corruption alert propagating from Observer to Forensic Brain, resolved to JIRA-803</em></sub>
 </p>
 
-</details>
+---
 
-<details>
-<summary><strong>3. The Dying Breath (Segmentation Fault)</strong></summary>
+### 3. The Dying Breath (Segmentation Fault)
 
 **Fault:** The C++ engine is assassinated via `kill -11` (`SIGSEGV`).
 **Result:** The POSIX handler intercepts the kill command for a microsecond, stamps `0xDEAD000B`, and halts. Go maps the death rattle to `Jira-801` (Null Pointer Dereference).
@@ -265,10 +261,9 @@ sequenceDiagram
   <sub><em>Live capture — SIGSEGV death rattle intercepted and mapped to JIRA-801</em></sub>
 </p>
 
-</details>
+---
 
-<details>
-<summary><strong>4. Sudden Death (OOM Killer)</strong></summary>
+### 4. Sudden Death (OOM Killer)
 
 **Fault:** The engine is hard-killed via `kill -9` (`SIGKILL`). No signal handlers are permitted to run.
 **Result:** The Go Spy's 30ms heartbeat flatlines. It checks the RAM, finds a healthy magic number, realizes the process evaporated, and fires a `SUDDEN_DEATH` alert mapped to a Slack OOM notification.
@@ -299,7 +294,7 @@ sequenceDiagram
   <sub><em>Live capture — Heartbeat flatline detected, SUDDEN_DEATH alert routed to Slack</em></sub>
 </p>
 
-</details>
+---
 
 ### Summary
 

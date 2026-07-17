@@ -1,22 +1,30 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel
-from app.rag_engine import ForensicBrain
+# Import the newly structured RAG engine
+import app.rag_engine as rag_engine
 
-app = FastAPI(title="Metadata Crash Cart - Forensic Brain")
-brain = ForensicBrain()
+app = FastAPI()
 
-class CrashPayload(BaseModel):
+# 1. This Pydantic model now perfectly matches the Go Spy's JSON payload
+class AlertPayload(BaseModel):
     timestamp: str
     hex_dump: str
     alert_type: str
+    context: str
 
 @app.post("/analyze")
-async def analyze_crash(payload: CrashPayload):
-    try:
-        rca_result = brain.analyze_dump(payload.hex_dump)
-        print(f"[Brain] Received crash alert ({payload.alert_type}).")
-        print(f"[Brain] Analysis: {rca_result}")
-        return {"status": "SUCCESS", "rca": rca_result}
-    except Exception as e:
-        print(f"[Brain] Error processing payload: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+async def analyze_telemetry(payload: AlertPayload):
+    print(f"\n==================================================")
+    print(f"[FastAPI] Incoming {payload.alert_type} Alert!")
+    print(f"[FastAPI] Hex Dump: {payload.hex_dump}")
+    print(f"[FastAPI] Hydrated Context: {payload.context}")
+    
+    # 2. We pass the English context string to the new AI function, NOT the raw hex
+    print("[FastAPI] Querying ChromaDB Vector Store...")
+    rca_result = rag_engine.analyze_error(payload.context)
+    
+    print(f"[FastAPI] Analysis Complete:")
+    print(f" {rca_result}")
+    print(f"==================================================\n")
+    
+    return {"status": "success", "analysis": rca_result}

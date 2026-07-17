@@ -1,0 +1,20 @@
+cat << 'EOF' > .gitignore
+# =========================
+# Python / Forensic Brain
+# =========================
+forensic/venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# =========================
+# Go / Observer Spy
+# =========================
+observer/observer_bin
+
+# =========================
+# C++ / Producer Engine
+# =========================
+producer/producer
+EOF

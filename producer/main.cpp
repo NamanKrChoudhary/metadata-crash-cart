@@ -73,6 +73,12 @@ int main() {
         // Atomic release
         shm_rb->write_index.fetch_add(1, std::memory_order_release);
         local_seq++;
+
+        // --- THE MICRO-BATCH THROTTLE (100k TPS) ---
+        // Burst 2,000 trades, then sleep 20ms to bypass WSL tick rounding
+        if (local_seq % 2000 == 0) {
+            usleep(20000); 
+        }
     }
 
     return 0;
